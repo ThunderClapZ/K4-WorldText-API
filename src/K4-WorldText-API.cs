@@ -183,18 +183,18 @@ namespace K4ryuuCS2WorldTextAPI
 
 		[ConsoleCommand("css_wt", "Spawns a world text")]
 		[ConsoleCommand("css_worldtext", "Spawns a world text")]
-		[RequiresPermissions("@css/root")]
+		[RequiresPermissions("@css/ban")]
 		public void OnWorldTextSpawn(CCSPlayerController player, CommandInfo command)
 		{
 			if (command.ArgCount < 2)
 			{
-				command.ReplyToCommand($" {ChatColors.Silver}[ {ChatColors.Lime}K4-WorldText {ChatColors.Silver}] {ChatColors.Red}Usage: {ChatColors.Yellow}!css_worldtext <floor|wall>");
+				command.ReplyToCommand($" {ChatColors.Silver}[ {ChatColors.Lime}地图文本 {ChatColors.Silver}] {ChatColors.Red}用法: {ChatColors.Yellow}!wt <floor|wall>");
 				return;
 			}
 
 			if (player.PlayerPawn.Value?.Health <= 0)
 			{
-				command.ReplyToCommand($" {ChatColors.Silver}[ {ChatColors.Lime}K4-WorldText {ChatColors.Silver}] {ChatColors.Red}You must be alive to use this command.");
+				command.ReplyToCommand($" {ChatColors.Silver}[ {ChatColors.Lime}地图文本 {ChatColors.Silver}] {ChatColors.Red}活着才能用.");
 				return;
 			}
 
@@ -210,7 +210,7 @@ namespace K4ryuuCS2WorldTextAPI
 					placement = TextPlacement.Wall;
 					break;
 				default:
-					command.ReplyToCommand($" {ChatColors.Silver}[ {ChatColors.Lime}K4-WorldText {ChatColors.Silver}] {ChatColors.Red}Invalid placement. {ChatColors.Yellow}Use 'floor' or 'wall'.");
+					command.ReplyToCommand($" {ChatColors.Silver}[ {ChatColors.Lime}地图文本 {ChatColors.Silver}] {ChatColors.Red}无效的参数. {ChatColors.Yellow}使用 'floor' 或 'wall'.");
 					return;
 			}
 
@@ -218,13 +218,13 @@ namespace K4ryuuCS2WorldTextAPI
 			{
 				new TextLine
 				{
-					Text = "Welcome to the CS2 WorldText API!",
+					Text = "这是一行文本!",
 					Color = Color.Yellow,
 					FontSize = 24
 				},
 				new TextLine
 				{
-					Text = "You can edit this line in the config file.",
+					Text = "可以在配置文件中修改文本的内容.",
 					Color = Color.Cyan,
 					FontSize = 18
 				},
@@ -237,17 +237,150 @@ namespace K4ryuuCS2WorldTextAPI
 			};
 
 			SpawnMultipleLines(player, (TextPlacement)placement, startLines, true);
-			command.ReplyToCommand($" {ChatColors.Silver}[ {ChatColors.Lime}K4-WorldText {ChatColors.Silver}] {ChatColors.Green}WorldText spawned! You can edit the text in the config file.");
+			command.ReplyToCommand($" {ChatColors.Silver}[ {ChatColors.Lime}地图文本 {ChatColors.Silver}] {ChatColors.Green}生成成功,请修改配置文件更改文本内容.");
+		}
+
+		[ConsoleCommand("css_wtpreset", "Spawns a world text")]
+		[RequiresPermissions("@css/ban")]
+		public void OnWorldTextSpawnPreset(CCSPlayerController player, CommandInfo command)
+		{
+			if (command.ArgCount < 4)
+			{
+				command.ReplyToCommand($" {ChatColors.Silver}[ {ChatColors.Lime}地图文本 {ChatColors.Silver}] {ChatColors.Red}用法: {ChatColors.Yellow}!wtpreset <floor|wall> <presetname> <fontsize>");
+				return;
+			}
+
+			if (player.PlayerPawn.Value?.Health <= 0)
+			{
+				command.ReplyToCommand($" {ChatColors.Silver}[ {ChatColors.Lime}地图文本 {ChatColors.Silver}] {ChatColors.Red}活着才能用.");
+				return;
+			}
+
+			string placementName = command.GetCommandString.Split(' ')[1];
+
+			TextPlacement? placement;
+			switch (placementName.ToLower())
+			{
+				case "floor":
+					placement = TextPlacement.Floor;
+					break;
+				case "wall":
+					placement = TextPlacement.Wall;
+					break;
+				default:
+					command.ReplyToCommand($" {ChatColors.Silver}[ {ChatColors.Lime}地图文本 {ChatColors.Silver}] {ChatColors.Red}无效的参数. {ChatColors.Yellow}使用 'floor' 或 'wall'.");
+					return;
+			}
+
+			// 设置预设
+			string presetName = command.GetCommandString.Split(' ')[2];
+			string presetFontSizeString = command.GetCommandString.Split(' ')[3];
+			int presetFontSize = int.Parse(presetFontSizeString);
+			string wtTextL1 = "这是一行文本";
+			string wtTextL2 = "这是一行文本";
+			string wtTextL3 = "这是一行文本";
+			Color wtColorL1 = Color.Yellow;
+			Color wtColorL2 = Color.Cyan;
+			Color wtColorL3 = Color.Red;
+			int wtSizeL1 = presetFontSize;
+			int wtSizeL2 = presetFontSize;
+			int wtSizeL3 = presetFontSize;
+			switch (presetName.ToLower())
+			{
+				case "武器库":
+					wtTextL1 = "";
+					wtTextL2 = "武器库";
+					wtTextL3 = "";
+					wtColorL1 = Color.Blue;
+					wtColorL2 = Color.Blue;
+					wtColorL3 = Color.Blue;
+					break;
+				case "密道":
+					wtTextL1 = "";
+					wtTextL2 = "密道";
+					wtTextL3 = "";
+					wtColorL1 = Color.Red;
+					wtColorL2 = Color.Red;
+					wtColorL3 = Color.Red;
+					break;
+				case "未知":
+					wtTextL1 = "未知区域";
+					wtTextL2 = "?";
+					wtTextL3 = "未知区域";
+					wtColorL1 = Color.Yellow;
+					wtColorL2 = Color.Yellow;
+					wtColorL3 = Color.Yellow;
+					break;
+				case "ct房":
+					wtTextL1 = "";
+					wtTextL2 = "CT房";
+					wtTextL3 = "该区域自由后狱警禁止进入";
+					wtColorL1 = Color.Blue;
+					wtColorL2 = Color.Blue;
+					wtColorL3 = Color.Blue;
+					break;
+				case "规则":
+					wtTextL1 = "当狱警请务必知晓规则";
+					wtTextL2 = "请在规定时间内离开武器库";
+					wtTextL3 = "狱警不能进密道和捡地图武器";
+					wtColorL1 = Color.Orange;
+					wtColorL2 = Color.Orange;
+					wtColorL3 = Color.Orange;
+					break;
+				case "bug":
+					wtTextL1 = "BUG";
+					wtTextL2 = "这里是BUG区域";
+					wtTextL3 = "进入会导致被服务器封禁";
+					wtColorL1 = Color.Yellow;
+					wtColorL2 = Color.Yellow;
+					wtColorL3 = Color.Yellow;
+					break;
+				case "警戒":
+					wtTextL1 = "警戒区域";
+					wtTextL2 = "请勿跨越区域或出图";
+					wtTextL3 = "越过此区域可能会导致被服务器封禁";
+					wtColorL1 = Color.Yellow;
+					wtColorL2 = Color.Yellow;
+					wtColorL3 = Color.Yellow;
+					break;
+			}
+
+			// 文本
+			List<TextLine> startLines = new List<TextLine>
+			{
+
+				new TextLine
+				{
+					Text = wtTextL1,
+					Color = wtColorL1,
+					FontSize = wtSizeL1
+				},
+				new TextLine
+				{
+					Text = wtTextL2,
+					Color = wtColorL2,
+					FontSize = wtSizeL2
+				},
+				new TextLine
+				{
+					Text = wtTextL3,
+					Color = wtColorL3,
+					FontSize = wtSizeL3
+				}
+			};
+
+			SpawnMultipleLines(player, (TextPlacement)placement, startLines, true);
+			command.ReplyToCommand($" {ChatColors.Silver}[ {ChatColors.Lime}地图文本 {ChatColors.Silver}] {ChatColors.Green}预设{presetName}生成成功.文本大小{presetFontSize}");
 		}
 
 		[ConsoleCommand("css_rwt", "Removes a world text")]
 		[ConsoleCommand("css_removeworldtext", "Removes a world text")]
-		[RequiresPermissions("@css/root")]
+		[RequiresPermissions("@css/ban")]
 		public void OnRemoveWorldTextSpawn(CCSPlayerController player, CommandInfo command)
 		{
 			if (player.PlayerPawn.Value?.Health <= 0)
 			{
-				command.ReplyToCommand($" {ChatColors.Silver}[ {ChatColors.Lime}K4-WorldText {ChatColors.Silver}] {ChatColors.Red}You must be alive to use this command.");
+				command.ReplyToCommand($" {ChatColors.Silver}[ {ChatColors.Lime}地图文本 {ChatColors.Silver}] {ChatColors.Red}活着才能用.");
 				return;
 			}
 
@@ -263,7 +396,7 @@ namespace K4ryuuCS2WorldTextAPI
 
 			if (target is null)
 			{
-				command.ReplyToCommand($" {ChatColors.Silver}[ {ChatColors.Lime}K4-WorldText {ChatColors.Silver}] {ChatColors.Red}Move closer to the WorldText that you want to remove.");
+				command.ReplyToCommand($" {ChatColors.Silver}[ {ChatColors.Lime}地图文本 {ChatColors.Silver}] {ChatColors.Red}靠近你想要删除的文本才可以删除.");
 				return;
 			}
 
@@ -273,11 +406,11 @@ namespace K4ryuuCS2WorldTextAPI
 			loadedConfigs?.RemoveAll(config => config.Lines == target.Lines && config.AbsOrigin == target.Texts[0].AbsOrigin.ToString() && config.AbsRotation == target.Texts[0].AbsRotation.ToString());
 			SaveConfig();
 
-			command.ReplyToCommand($" {ChatColors.Silver}[ {ChatColors.Lime}K4-WorldText {ChatColors.Silver}] {ChatColors.Green}WorldText removed!");
+			command.ReplyToCommand($" {ChatColors.Silver}[ {ChatColors.Lime}地图文本 {ChatColors.Silver}] {ChatColors.Green}文本已删除!");
 		}
 
-		[ConsoleCommand("css_wt_reload", "Reloads the world text config")]
-		[RequiresPermissions("@css/root")]
+		[ConsoleCommand("css_wt_reload", "重载配置文件")]
+		[RequiresPermissions("@css/ban")]
 		public void OnWorldTextReload(CCSPlayerController player, CommandInfo command)
 		{
 			multilineWorldTexts.ForEach(multilineWorldText => multilineWorldText.Dispose());
@@ -286,7 +419,7 @@ namespace K4ryuuCS2WorldTextAPI
 			loadedConfigs?.Clear();
 			LoadConfig(Server.MapName);
 
-			command.ReplyToCommand($" {ChatColors.Silver}[ {ChatColors.Lime}K4-WorldText {ChatColors.Silver}] {ChatColors.Green}WorldText config has been reloaded!");
+			command.ReplyToCommand($" {ChatColors.Silver}[ {ChatColors.Lime}地图文本 {ChatColors.Silver}] {ChatColors.Green}重载成功!");
 		}
 
 		[ConsoleCommand("css_wti", "Shows informations about nearest world text")]
@@ -295,7 +428,7 @@ namespace K4ryuuCS2WorldTextAPI
 		{
 			if (player.PlayerPawn.Value?.Health <= 0)
 			{
-				command.ReplyToCommand($" {ChatColors.Silver}[ {ChatColors.Lime}K4-WorldText {ChatColors.Silver}] {ChatColors.Red}You must be alive to use this command.");
+				command.ReplyToCommand($" {ChatColors.Silver}[ {ChatColors.Lime}地图文本 {ChatColors.Silver}] {ChatColors.Red}活着才能使用.");
 				return;
 			}
 
@@ -306,11 +439,11 @@ namespace K4ryuuCS2WorldTextAPI
 
 			if (target is null)
 			{
-				command.ReplyToCommand($" {ChatColors.Silver}[ {ChatColors.Lime}K4-WorldText {ChatColors.Silver}] {ChatColors.Red}Move closer to the WorldText that you want to get information about.");
+				command.ReplyToCommand($" {ChatColors.Silver}[ {ChatColors.Lime}地图文本 {ChatColors.Silver}] {ChatColors.Red}靠近文本才能查看信息.");
 				return;
 			}
 
-			player.PrintToChat($" {ChatColors.Silver}[ {ChatColors.Lime}K4-WorldText {ChatColors.Silver}] {ChatColors.Green}WorldText Informations");
+			player.PrintToChat($" {ChatColors.Silver}[ {ChatColors.Lime}地图文本 {ChatColors.Silver}] {ChatColors.Green}文本信息");
 			player.PrintToChat($" {ChatColors.Silver}Placement: {ChatColors.Yellow}{target.placement switch { TextPlacement.Floor => "Floor", TextPlacement.Wall => "Wall", _ => "Unknown" }}");
 			player.PrintToChat($" {ChatColors.Silver}Lines: {ChatColors.Yellow}{target.Texts.Count}");
 			player.PrintToChat($" {ChatColors.Silver}Location: {ChatColors.Yellow}{target.Texts[0].AbsOrigin}");
