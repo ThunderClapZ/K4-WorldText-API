@@ -10,6 +10,7 @@ using CounterStrikeSharp.API.Modules.Utils;
 using K4WorldTextSharedAPI;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using static CounterStrikeSharp.API.Core.Listeners;
 
 namespace K4ryuuCS2WorldTextAPI
 {
@@ -43,10 +44,22 @@ namespace K4ryuuCS2WorldTextAPI
 			{
 				loadedConfigs?.Clear();
 				loadedConfigs = null;
+				multilineWorldTexts.Clear();
 			});
+
+			RegisterListener<OnMapStart>(OnMapStartHandler);
 
 			if (hotReload)
 				LoadConfig(Server.MapName);
+		}
+
+		private void OnMapStartHandler(string mapName)
+		{
+			configFilePath = Path.Combine(ModuleDirectory, $"worldtext_{mapName}.json");
+            if (!File.Exists(configFilePath))
+            {
+                File.WriteAllText(configFilePath, "[]");
+            }
 		}
 
 		public override void Unload(bool hotReload)
